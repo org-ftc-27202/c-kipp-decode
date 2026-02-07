@@ -75,7 +75,7 @@ public class Intake implements Subsystem {
             }
         }
         if (ballCounter >= 3) {
-            if (autoStopIntakeTimer.getElapsedTime() > 10) { // milliseconds to close stopper
+            if (autoStopIntakeTimer.getElapsedTime() > 5) { // milliseconds to close stopper
                 stopperServo.setPosition(stopperClosePosition);
             }
             if (autoStopIntakeTimer.getElapsedTime() > 1500 && !autoStopIntakeFlag) { // milliseconds to auto stop intake
