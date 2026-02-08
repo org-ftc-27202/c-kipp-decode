@@ -95,7 +95,7 @@ public class Camera implements Subsystem {
                     Config.deltaToCenterX = tagX - 160; // based on frame width of 320
                     Config.deltaToCenterY = tagY - 36; // based on ideal height of 36
                 }
-                Config.deltaToCenterAngleInDeg = Config.deltaToCenterX * 0.25;  // Correction Factor
+                Config.deltaToCenterAngleInDeg = Config.deltaToCenterX * 0.08;  // Correction Factor
                 flagCaptureGoalPositionComplete = true;
             })
             .setUpdate(() -> {})

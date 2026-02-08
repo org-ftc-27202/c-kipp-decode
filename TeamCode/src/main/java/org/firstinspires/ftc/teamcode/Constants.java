@@ -15,19 +15,19 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(15.5)
-//            .forwardZeroPowerAcceleration(200)
-//            .lateralZeroPowerAcceleration(170)
-//            .translationalPIDFCoefficients(new PIDFCoefficients(0, 0, 0.0, 0.0))
-//            .headingPIDFCoefficients(new PIDFCoefficients(0.0, 0, 0.0, 0.0))
-//            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0.0,0.1,0.06,0.0))
-//            .centripetalScaling(0.00065)
+            .forwardZeroPowerAcceleration(-30.29578849531249)
+            .lateralZeroPowerAcceleration(-73.1174889017444)
+            .translationalPIDFCoefficients(new PIDFCoefficients(1.0, 0, 0.01, 0.0001))
+            .headingPIDFCoefficients(new PIDFCoefficients(3.0, 0, 0.02, 0.02))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0.0,0,0,0))
+            .centripetalScaling(0.0005)
             ;
 
     public static PathConstraints pathConstraints = new PathConstraints(
         0.99,
         100,
-        1,
-        1
+        1.0,
+        1.0
     );
 
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -41,8 +41,8 @@ public class Constants {
             .leftFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .useBrakeModeInTeleOp(true)
-            .xVelocity(232.75551065444398)
-            .yVelocity(190.61872750843932)
+            .xVelocity(70.67057468313743)
+            .yVelocity(61.60671420327289)
             ;
 
     public static DriveEncoderConstants localizerConstants = new DriveEncoderConstants()
