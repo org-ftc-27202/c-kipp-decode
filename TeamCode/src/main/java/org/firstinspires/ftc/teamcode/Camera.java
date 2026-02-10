@@ -154,6 +154,22 @@ public class Camera implements Subsystem {
             .setStop(interrupted -> {})
             .setInterruptible(false)
             .requires(this);
+    public double getAngleTowardsGoalCenter() {
+        deltaToCenterX = 0;
+        int blockLength, tagX = 0;
+        HuskyLens.Block[] blocksFront = huskyLensFront.blocks();
+        blockLength = blocksFront.length;
+        deltaToCenterX = 0;
+        if (blockLength != 0) {
+            // if RED alliance, then get the leftmost, otherwise, go rightmost
+            if (Config.allianceColor == Config.AllianceColors.RED && blocksFront[0].id == 4
+                    || Config.allianceColor == Config.AllianceColors.BLUE && blocksFront[0].id == 5) {
+                tagX = blocksFront[0].x;
+            }
+            deltaToCenterX = tagX - 160; // based on frame width of 320
+        }
+        return deltaToCenterX * 0.02;  // multiplier factor to degrees
+    }
     public Command getCatapultArtifactColors = new LambdaCommand("getCatapultArtifactColors")
             .setStart(() -> {
                 flagGetCatapultArtifactColors = false;

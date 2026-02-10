@@ -59,28 +59,30 @@ public class Intake implements Subsystem {
             .requires(this);
 
     public void CountBalls() {
-        if (!ballCounterSwitch.getState()) {
-            if (ballCounter == 0) {
-                ballSensorTimer.reset();
-                ballCounter = 1;
-            } else if (ballSensorTimer.milliseconds() > 200) {  // milliseconds in between sensor reading
-                ballSensorTimer.reset();
-                ballCounter += 1;
-                if (ballCounter >= 3) {
-                    autoStopIntakeTimer.reset();
-                    autoStopIntakeFlag = false;
-                    intakeMode = IntakeMode.STOP;
+        if (Config.isTeleOpStartButtonPressed) {
+            if (!ballCounterSwitch.getState()) {
+                if (ballCounter == 0) {
+                    ballSensorTimer.reset();
+                    ballCounter = 1;
+                } else if (ballSensorTimer.milliseconds() > 200) {  // milliseconds in between sensor reading
+                    ballSensorTimer.reset();
+                    ballCounter += 1;
+                    if (ballCounter >= 3) {
+                        autoStopIntakeTimer.reset();
+                        autoStopIntakeFlag = false;
+                        intakeMode = IntakeMode.STOP;
+                    }
                 }
             }
-        }
-        if (ballCounter >= 3) {
-            if (autoStopIntakeTimer.milliseconds() > 5) { // milliseconds to close stopper
-                stopperServo.setPosition(stopperClosePosition);
-            }
-            if (autoStopIntakeTimer.milliseconds() > 1500 && !autoStopIntakeFlag) { // milliseconds to auto stop intake
+            if (ballCounter >= 3) {
+                if (autoStopIntakeTimer.milliseconds() > 5) { // milliseconds to close stopper
+                    stopperServo.setPosition(stopperClosePosition);
+                }
+                if (autoStopIntakeTimer.milliseconds() > 1500 && !autoStopIntakeFlag) { // milliseconds to auto stop intake
                     autoStopIntakeFlag = true;
                     wiperServo.setPosition(wiperLaunchPosition);
                     intakeMotor.getMotor().setPower(0);
+                }
             }
         }
     }

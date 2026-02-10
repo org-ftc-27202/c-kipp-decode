@@ -16,7 +16,7 @@ public class Catapult implements Subsystem {
     private double CATAPULT_LAUNCH_POWER = 1.0;
     private int HALF_ROTATION;
     final double LAUNCHING_IN_PARALLEL_DELAY_IN_SECONDS = 0.100;  // delay in between catapult launches
-    final double LAUNCHING_BY_PATTERN_DELAY_IN_SECONDS = 0.750;  // delay in between catapult launches
+    final double LAUNCHING_BY_PATTERN_DELAY_IN_SECONDS = 1.000;  // delay in between catapult launches
 
     public static final Catapult INSTANCE = new Catapult();
     private Catapult() { }

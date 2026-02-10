@@ -24,6 +24,7 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
     private boolean telemetryOnFlag;
     @Override
     public void onInit() {
+        Config.isTeleOpStartButtonPressed = false;
         Camera.INSTANCE.mapCameraHardware(hardwareMap);
         Intake.INSTANCE.mapIntakeStopperHardware(hardwareMap);
 
@@ -43,6 +44,7 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         opModeTimer.reset();
+        Config.isTeleOpStartButtonPressed = true;
         DriverControlledCommand driverControlled = new MecanumDriverControlled(
                 frontLeftMotor,
                 frontRightMotor,

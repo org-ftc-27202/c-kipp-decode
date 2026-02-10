@@ -16,4 +16,5 @@ public class Config {
     public static Pose2d localizePose = new Pose2d(112, 138, Math.toRadians(90));
     public static Pose2d autoEndPose = new Pose2d(112, 138, Math.toRadians(90));
     public static boolean isDriverControlled = true;
+    public static boolean isTeleOpStartButtonPressed = false;
 }
