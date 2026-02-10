@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.geometry.Pose;
+import com.acmerobotics.roadrunner.Pose2d;
 
 public class Config {
     public enum AllianceColors {RED, BLUE}
@@ -13,6 +13,7 @@ public class Config {
     public static Colors catapult01Color = Colors.GREEN;
     public static Colors catapult02Color = Colors.PURPLE;
     public static Colors catapult03Color = Colors.PURPLE;
-    public static Pose autoEndPose = new Pose(113, 129.5, Math.toRadians(90));
-    public static double deltaToCenterX = 0.0, deltaToCenterY = 0.0, deltaToCenterAngleInDeg = 0.0;
+    public static Pose2d localizePose = new Pose2d(112, 138, Math.toRadians(90));
+    public static Pose2d autoEndPose = new Pose2d(112, 138, Math.toRadians(90));
+    public static boolean isDriverControlled = true;
 }

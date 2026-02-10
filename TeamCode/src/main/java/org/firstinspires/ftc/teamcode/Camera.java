@@ -17,8 +17,10 @@ public class Camera implements Subsystem {
     public Camera() { }
     private HuskyLens huskyLensFront, huskyLensLeft, huskyLensRight;
     private boolean flagCapturePatternComplete = false;
-    private boolean flagCaptureGoalPositionComplete = false;
+    private boolean flagAlignToGoalComplete = false;
     private boolean flagGetCatapultArtifactColors = false;
+    public int deltaToCenterX = 0, deltaToCenterY = 0;
+    public double turnPIDPower = 0.0, forwardPIDPower = 0.0;;
 
     public void mapCameraHardware(HardwareMap hardwareMap) {
         huskyLensFront = hardwareMap.get(HuskyLens.class, "huskylensFront");
@@ -39,6 +41,7 @@ public class Camera implements Subsystem {
                 int blockLength, blockIndex, minX, maxX;
                 HuskyLens.Block[] blocks = huskyLensFront.blocks();
                 blockLength = blocks.length;
+
                 if (blockLength != 0) {
                     blockIndex = 0;
                     minX = blocks[0].x;
@@ -76,34 +79,81 @@ public class Camera implements Subsystem {
             .setStop(interrupted -> {})
             .setInterruptible(false)
             .requires(this);
-    public Command captureGoalPosition = new LambdaCommand("captureGoalPosition")
+    public Command alignToGoal_byTurn = new LambdaCommand("alignToGoal_byTurn")
             .setStart(() -> {
-                flagCaptureGoalPositionComplete = false;
-                int blockLength, tagX=0, tagY=0;
-                HuskyLens.Block[] blocks = huskyLensFront.blocks();
-                blockLength = blocks.length;
-
-                Config.deltaToCenterX = 0;
-                Config.deltaToCenterY = 0;
+                flagAlignToGoalComplete = false;
+                deltaToCenterX = 0;
+                turnPIDPower = 0.0;
+                forwardPIDPower = 0.0;
+            })
+            .setUpdate(() -> {
+                int blockLength, tagX = 0;
+                HuskyLens.Block[] blocksFront = huskyLensFront.blocks();
+                blockLength = blocksFront.length;
+                deltaToCenterX = 0;
                 if (blockLength != 0) {
                     // if RED alliance, then get the leftmost, otherwise, go rightmost
-                    if (Config.allianceColor == Config.AllianceColors.RED && blocks[0].id == 4
-                    || Config.allianceColor == Config.AllianceColors.BLUE && blocks[0].id == 5) {
-                        tagX = blocks[0].x;
-                        tagY = blocks[0].y;
+                    if (Config.allianceColor == Config.AllianceColors.RED && blocksFront[0].id == 4
+                            || Config.allianceColor == Config.AllianceColors.BLUE && blocksFront[0].id == 5) {
+                        tagX = blocksFront[0].x;
                     }
-                    Config.deltaToCenterX = tagX - 160; // based on frame width of 320
-                    Config.deltaToCenterY = tagY - 36; // based on ideal height of 36
+                    deltaToCenterX = tagX - 160; // based on frame width of 320
                 }
-                Config.deltaToCenterAngleInDeg = Config.deltaToCenterX * 0.08;  // Correction Factor
-                flagCaptureGoalPositionComplete = true;
+                if (deltaToCenterX > 8) {
+                    Config.isDriverControlled = false;
+                    turnPIDPower = 0.12;
+                }
+                else if (deltaToCenterX < -8) {
+                    Config.isDriverControlled = false;
+                    turnPIDPower = -0.12;
+                }
+                else {
+                    flagAlignToGoalComplete = true;
+                    Config.isDriverControlled = true;
+                }
             })
-            .setUpdate(() -> {})
-            .setIsDone(() -> flagCaptureGoalPositionComplete)
+            .setIsDone(() -> flagAlignToGoalComplete)
             .setStop(interrupted -> {})
             .setInterruptible(false)
             .requires(this);
-
+    public Command alignToGoal_byForward = new LambdaCommand("alignToGoal_byForward")
+            .setStart(() -> {
+                flagAlignToGoalComplete = false;
+                deltaToCenterY = 0;
+                turnPIDPower = 0.0;
+                forwardPIDPower = 0.0;
+            })
+            .setUpdate(() -> {
+                int blockLength, tagY = 0;
+                HuskyLens.Block[] blocksFront = huskyLensFront.blocks();
+                blockLength = blocksFront.length;
+                deltaToCenterX = 0;
+                deltaToCenterY = 0;
+                if (blockLength != 0) {
+                    // if RED alliance, then get the leftmost, otherwise, go rightmost
+                    if (Config.allianceColor == Config.AllianceColors.RED && blocksFront[0].id == 4
+                            || Config.allianceColor == Config.AllianceColors.BLUE && blocksFront[0].id == 5) {
+                        tagY = blocksFront[0].y;
+                    }
+                    deltaToCenterY = tagY - 58; // based on ideal height of 36
+                }
+                if (deltaToCenterY > 8) {
+                    Config.isDriverControlled = false;
+                    forwardPIDPower = 0.50;
+                }
+                else if (deltaToCenterY < -8) {
+                    Config.isDriverControlled = false;
+                    forwardPIDPower = -0.50;
+                }
+                else {
+                    flagAlignToGoalComplete = true;
+                    Config.isDriverControlled = true;
+                }
+            })
+            .setIsDone(() -> flagAlignToGoalComplete)
+            .setStop(interrupted -> {})
+            .setInterruptible(false)
+            .requires(this);
     public Command getCatapultArtifactColors = new LambdaCommand("getCatapultArtifactColors")
             .setStart(() -> {
                 flagGetCatapultArtifactColors = false;

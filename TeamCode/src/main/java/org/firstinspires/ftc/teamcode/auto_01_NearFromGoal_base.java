@@ -1,10 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
-import com.pedropathing.util.Timer;
-
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
@@ -12,237 +7,251 @@ import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
-import dev.nextftc.extensions.pedro.FollowPath;
-import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
+
+import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public abstract class auto_01_NearFromGoal_base extends NextFTCOpMode {
     public auto_01_NearFromGoal_base() {
         addComponents(
-                new PedroComponent(Constants::createFollower),
                 new SubsystemComponent(Intake.INSTANCE, Catapult.INSTANCE, Camera.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
         );
     }
-    private Timer opModeTimer;
+    private final ElapsedTime opModeTimer = new ElapsedTime();
     private boolean telemetryOnFlag;
-    private PathChain driveToGetPattern, driveToLaunch0,
-            driveToSpike1Start, driveToSpike1End, driveToLaunch1,
-            driveToSpike2Start, driveToSpike2End, driveToLaunch2,
-            driveToSpike3Start, driveToSpike3End, driveToLaunch3,
-            driveToLeave,
-            driveToGateStart, driveToGateEnd
-            ;
-    private Pose startPose;
 
-    public void buildPaths() {
-        Pose getPatternPose, launchNear1Pose, spike1StartPose, spike1EndPose, gateStartPose, gateEndPose, LeavePose, spike2StartPose, spike2StartPose2, spike2EndPose, spike3StartPose, spike3EndPose;
+    private final Pose2d startPose = new Pose2d(-50, 55, Math.toRadians(90));
+    private final Pose2d getPatternPose = new Pose2d(-72, 30, Math.toRadians(90));
 
-        startPose = new Pose(113, 129.5, Math.toRadians(90));
-        getPatternPose = new Pose(92, 92, Math.toRadians(110));
-        launchNear1Pose = new Pose(100, 96, Math.toRadians(45));
+    MecanumDrive drive;
+    Command driveCommand;
+//    private PathChain driveToGetPattern, driveToLaunch0,
+//            driveToSpike1Start, driveToSpike1End, driveToLaunch1,
+//            driveToSpike2Start, driveToSpike2End, driveToLaunch2,
+//            driveToSpike3Start, driveToSpike3End, driveToLaunch3,
+//            driveToLeave,
+//            driveToGateStart, driveToGateEnd
+//            ;
+//     startPose, getPatternPose, launchNear1Pose, spike1StartPose, spike1EndPose, gateStartPose, gateEndPose, LeavePose, spike2StartPose, spike2StartPose2, spike2EndPose, spike3StartPose, spike3EndPose;
+//    public void buildPaths() {
 
-        spike1StartPose = new Pose(100, 82, Math.toRadians(0));
-        spike1EndPose = new Pose(130, 82, Math.toRadians(0));
+//        launchNear1Pose = new Pose(88, 84, Math.toRadians(38));
+//
+//        spike1StartPose = new Pose(90, 74, Math.toRadians(45));
+//        spike1EndPose = new Pose(100, 74, Math.toRadians(45));
+//
+//        gateStartPose = new Pose(120, 74, Math.toRadians(0));
+//        gateEndPose = new Pose(130, 74, Math.toRadians(0));
+//
+//        spike2StartPose = new Pose(100, 56, Math.toRadians(0));
+//        spike2StartPose2 = new Pose(128, 56, Math.toRadians(0));
+//        spike2EndPose = new Pose(128,56, Math.toRadians(0));
+//        spike3StartPose = new Pose(100, 34, Math.toRadians(0));
+//        spike3EndPose = new Pose(128,34, Math.toRadians(0));
+//
+//        LeavePose = new Pose(122, 62, Math.toRadians(0));  // Near Gate to Open for TeleOp
 
-        gateStartPose = new Pose(120, 74, Math.toRadians(0));
-        gateEndPose = new Pose(130, 74, Math.toRadians(0));
+//        if (Config.allianceColor == Config.AllianceColors.BLUE) {
+            // mirror logic / pose mapping
+//            startPose = startPose.mirror();
+//            getPatternPose = getPatternPose.mirror();
+//            launchNear1Pose = launchNear1Pose.mirror();
+//            spike1StartPose = spike1StartPose.mirror();
+//            spike1EndPose = spike1EndPose.mirror();
+//            gateStartPose = gateStartPose.mirror();
+//            gateEndPose = gateEndPose.mirror();
+//            spike2StartPose = spike2StartPose.mirror();
+//            spike2StartPose2 = spike2StartPose2.mirror();
+//            spike2EndPose = spike2EndPose.mirror();
+//            spike3StartPose = spike3StartPose.mirror();
+//            spike3EndPose = spike3EndPose.mirror();
+//            LeavePose = LeavePose.mirror();
+//        }
+//
+//        driveToGetPattern = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(startPose, getPatternPose))
+//                .setConstantHeadingInterpolation(getPatternPose.getHeading())
+//                .build();
 
-        spike2StartPose = new Pose(100, 56, Math.toRadians(0));
-        spike2StartPose2 = new Pose(128, 56, Math.toRadians(0));
-        spike2EndPose = new Pose(128,56, Math.toRadians(0));
-        spike3StartPose = new Pose(100, 34, Math.toRadians(0));
-        spike3EndPose = new Pose(128,34, Math.toRadians(0));
-
-        LeavePose = new Pose(122, 62, Math.toRadians(0));  // Near Gate to Open for TeleOp
-
-        if (Config.allianceColor == Config.AllianceColors.BLUE) {
-            startPose = startPose.mirror();
-            getPatternPose = getPatternPose.mirror();
-            launchNear1Pose = launchNear1Pose.mirror();
-            spike1StartPose = spike1StartPose.mirror();
-            spike1EndPose = spike1EndPose.mirror();
-            gateStartPose = gateStartPose.mirror();
-            gateEndPose = gateEndPose.mirror();
-            spike2StartPose = spike2StartPose.mirror();
-            spike2StartPose2 = spike2StartPose2.mirror();
-            spike2EndPose = spike2EndPose.mirror();
-            spike3StartPose = spike3StartPose.mirror();
-            spike3EndPose = spike3EndPose.mirror();
-            LeavePose = LeavePose.mirror();
-        }
-
-        driveToGetPattern = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(startPose, getPatternPose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), getPatternPose.getHeading())
-                .build();
-
-        driveToLaunch0 = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(getPatternPose, launchNear1Pose))
-                .setLinearHeadingInterpolation(getPatternPose.getHeading(), launchNear1Pose.getHeading())
-                .build();
-
-        driveToSpike1Start = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(launchNear1Pose, spike1StartPose))
-                .setLinearHeadingInterpolation(launchNear1Pose.getHeading(), spike1StartPose.getHeading())
-                .build();
-
-        driveToSpike1End = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(spike1StartPose, spike1EndPose))
-                .setLinearHeadingInterpolation(spike1StartPose.getHeading(), spike1EndPose.getHeading())
-                .build();
-
-        driveToGateStart = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(spike1EndPose, gateStartPose))
-                .setLinearHeadingInterpolation(spike1EndPose.getHeading(), gateStartPose.getHeading())
-                .build();
-
-        driveToGateEnd = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(gateStartPose, gateEndPose))
-                .setLinearHeadingInterpolation(gateStartPose.getHeading(), gateEndPose.getHeading())
-                .build();
-
-        driveToLaunch1 = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(spike1EndPose, launchNear1Pose))
-                .setLinearHeadingInterpolation(spike1EndPose.getHeading(), launchNear1Pose.getHeading())
-                .build();
-
-        driveToSpike2Start = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(launchNear1Pose, spike2StartPose))
-                .setLinearHeadingInterpolation(launchNear1Pose.getHeading(), spike2StartPose.getHeading())
-                .build();
-
-        driveToSpike2End = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(spike2StartPose, spike2EndPose))
-                .setLinearHeadingInterpolation(spike2StartPose.getHeading(), spike2EndPose.getHeading())
-                .build();
-
-        driveToLaunch2 = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(spike2EndPose, spike2StartPose2))
-                .setLinearHeadingInterpolation(spike2EndPose.getHeading(), spike2StartPose2.getHeading())
-                .addPath(new BezierLine(spike2StartPose2, launchNear1Pose))
-                .setLinearHeadingInterpolation(spike2StartPose2.getHeading(), launchNear1Pose.getHeading())
-                .build();
-
-        driveToLaunch2 = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(spike2EndPose, launchNear1Pose))
-                .setLinearHeadingInterpolation(spike2EndPose.getHeading(), launchNear1Pose.getHeading())
-                .build();
-
-        driveToSpike3Start = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(launchNear1Pose, spike3StartPose))
-                .setLinearHeadingInterpolation(launchNear1Pose.getHeading(), spike3StartPose.getHeading())
-                .build();
-
-        driveToSpike3End = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(spike3StartPose, spike3EndPose))
-                .setLinearHeadingInterpolation(spike3StartPose.getHeading(), spike3EndPose.getHeading())
-                .build();
-
-        driveToLaunch3 = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(spike3EndPose, launchNear1Pose))
-                .setLinearHeadingInterpolation(spike3EndPose.getHeading(), launchNear1Pose.getHeading())
-                .build();
-
-        driveToLeave = PedroComponent.follower().pathBuilder()
-                .addPath(new BezierLine(launchNear1Pose, LeavePose))
-                .setLinearHeadingInterpolation(launchNear1Pose.getHeading(), LeavePose.getHeading())
-                .build();
-    }
-    private Command autonomousRoutine() {
-        return new SequentialGroup(
-                // Get Motif and Launch Preloads
-                Intake.INSTANCE.initIntakeStopper,
-                new FollowPath(driveToGetPattern),
-                new Delay(0.10),
-                Camera.INSTANCE.capturePattern,
-                new FollowPath(driveToLaunch0),
-                new Delay(0.10),
-                Camera.INSTANCE.captureGoalPosition,
-                new InstantCommand(() -> PedroComponent.follower().turn(Math.toRadians(Config.deltaToCenterAngleInDeg), false)),
-                Catapult.INSTANCE.LaunchInParallel
-                ,
-
-                // Grab balls and launch #1
-                new ParallelGroup(
-                    Intake.INSTANCE.Inwards,
-                    new FollowPath(driveToSpike1Start)),
-                new FollowPath(driveToSpike1End, true, 0.4),
-                new FollowPath(driveToGateStart),
-                new FollowPath(driveToGateEnd),
-                new Delay(0.4),
-                new ParallelGroup(
-                        new SequentialGroup(new Delay(1.25), Intake.INSTANCE.Stop),
-                        new FollowPath(driveToLaunch1)),
-                new Delay(0.25),
-                new InstantCommand(() -> PedroComponent.follower().turn(Math.toRadians(Config.deltaToCenterAngleInDeg), false)),
-                Catapult.INSTANCE.LaunchByPattern
-                ,
-
-                // Grab balls and launch #2
-                new ParallelGroup(
-                        Intake.INSTANCE.Inwards,
-                        new FollowPath(driveToSpike2Start)),
-                new FollowPath(driveToSpike2End, true, 0.4),
-                new ParallelGroup(
-                        new SequentialGroup(new Delay(1.25), Intake.INSTANCE.Stop),
-                        new FollowPath(driveToLaunch2)),
-                new Delay(0.25),
-                new InstantCommand(() -> PedroComponent.follower().turn(Math.toRadians(Config.deltaToCenterAngleInDeg), false)),
-                Catapult.INSTANCE.LaunchByPattern
-                ,
-
-                // Grab balls and launch #3
-                new ParallelGroup(
-                        Intake.INSTANCE.Inwards,
-                        new FollowPath(driveToSpike3Start)),
-                new FollowPath(driveToSpike3End, true, 0.4),
-                new ParallelGroup(
-                        new SequentialGroup(new Delay(1.25), Intake.INSTANCE.Stop),
-                        new FollowPath(driveToLaunch3)),
-                new Delay(0.25),
-                new InstantCommand(() -> PedroComponent.follower().turn(Math.toRadians(Config.deltaToCenterAngleInDeg), false)),
-                Catapult.INSTANCE.LaunchByPattern
-                ,
-
-                // Go to Leave Pose
-                new FollowPath(driveToLeave)
-        );
-    }
+//        driveToLaunch0 = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(getPatternPose, launchNear1Pose))
+//                .setLinearHeadingInterpolation(getPatternPose.getHeading(), launchNear1Pose.getHeading())
+//                .build();
+//
+//        driveToSpike1Start = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(launchNear1Pose, spike1StartPose))
+//                .setLinearHeadingInterpolation(launchNear1Pose.getHeading(), spike1StartPose.getHeading())
+//                .build();
+//
+//        driveToSpike1End = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(spike1StartPose, spike1EndPose))
+//                .setLinearHeadingInterpolation(spike1StartPose.getHeading(), spike1EndPose.getHeading())
+//                .build();
+//
+//        driveToGateStart = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(spike1EndPose, gateStartPose))
+//                .setLinearHeadingInterpolation(spike1EndPose.getHeading(), gateStartPose.getHeading())
+//                .build();
+//
+//        driveToGateEnd = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(gateStartPose, gateEndPose))
+//                .setLinearHeadingInterpolation(gateStartPose.getHeading(), gateEndPose.getHeading())
+//                .build();
+//
+//        driveToLaunch1 = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(spike1EndPose, launchNear1Pose))
+//                .setLinearHeadingInterpolation(spike1EndPose.getHeading(), launchNear1Pose.getHeading())
+//                .build();
+//
+//        driveToSpike2Start = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(launchNear1Pose, spike2StartPose))
+//                .setLinearHeadingInterpolation(launchNear1Pose.getHeading(), spike2StartPose.getHeading())
+//                .build();
+//
+//        driveToSpike2End = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(spike2StartPose, spike2EndPose))
+//                .setLinearHeadingInterpolation(spike2StartPose.getHeading(), spike2EndPose.getHeading())
+//                .build();
+//
+//        driveToLaunch2 = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(spike2EndPose, spike2StartPose2))
+//                .setLinearHeadingInterpolation(spike2EndPose.getHeading(), spike2StartPose2.getHeading())
+//                .addPath(new BezierLine(spike2StartPose2, launchNear1Pose))
+//                .setLinearHeadingInterpolation(spike2StartPose2.getHeading(), launchNear1Pose.getHeading())
+//                .build();
+//
+//        driveToLaunch2 = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(spike2EndPose, launchNear1Pose))
+//                .setLinearHeadingInterpolation(spike2EndPose.getHeading(), launchNear1Pose.getHeading())
+//                .build();
+//
+//        driveToSpike3Start = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(launchNear1Pose, spike3StartPose))
+//                .setLinearHeadingInterpolation(launchNear1Pose.getHeading(), spike3StartPose.getHeading())
+//                .build();
+//
+//        driveToSpike3End = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(spike3StartPose, spike3EndPose))
+//                .setLinearHeadingInterpolation(spike3StartPose.getHeading(), spike3EndPose.getHeading())
+//                .build();
+//
+//        driveToLaunch3 = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(spike3EndPose, launchNear1Pose))
+//                .setLinearHeadingInterpolation(spike3EndPose.getHeading(), launchNear1Pose.getHeading())
+//                .build();
+//
+//        driveToLeave = PedroComponent.follower().pathBuilder()
+//                .addPath(new BezierLine(launchNear1Pose, LeavePose))
+//                .setLinearHeadingInterpolation(launchNear1Pose.getHeading(), LeavePose.getHeading())
+//                .build();
+//    }
     @Override
     public void onInit() {
-        opModeTimer = new Timer();
+        telemetryOnFlag = true;
+//        telemetryOnFlag = false;
+
         Camera.INSTANCE.mapCameraHardware(hardwareMap);
-        buildPaths();
-        PedroComponent.follower().setPose(startPose);
-//        telemetryOnFlag = true;
-        telemetryOnFlag = false;
+        Intake.INSTANCE.mapIntakeStopperHardware(hardwareMap);
+
+        drive = new MecanumDrive(hardwareMap, startPose);
+        driveCommand = drive.commandBuilder(startPose)
+//                .stopAndAdd(Intake.INSTANCE.initIntakeStopper)
+//                .splineToConstantHeading(getPatternPose.position, getPatternPose.heading)
+                .splineToLinearHeading(getPatternPose, getPatternPose.heading)
+//                .lineToXConstantHeading(getPatternPose.position.x)
+                .build();
     }
 
     @Override
     public void onStartButtonPressed() {
-        opModeTimer.resetTimer();
-        autonomousRoutine().schedule();
+        opModeTimer.reset();
+        driveCommand.schedule();
     }
+
+//    private Command autonomousRoutine() {
+//        return new SequentialGroup(
+//                // Get Motif and Launch Preloads
+//                Intake.INSTANCE.initIntakeStopper,
+//                new FollowPath(driveToGetPattern),
+//                new Delay(0.10),
+//                Camera.INSTANCE.capturePattern,
+//                new FollowPath(driveToLaunch0),
+//                new Delay(0.10),
+//                Camera.INSTANCE.captureGoalPosition,
+//                new InstantCommand(() -> PedroComponent.follower().turn(Math.toRadians(Config.deltaToCenterAngleInDeg), false))
+////                ,
+////                Catapult.INSTANCE.LaunchInParallel,
+//
+//                // Grab balls and launch #1
+////                new ParallelGroup(
+////                    Intake.INSTANCE.Inwards,
+////                    new FollowPath(driveToSpike1Start))
+////                ,
+////                new FollowPath(driveToSpike1End, true, 0.4)
+////                ,
+////                new FollowPath(driveToGateStart),
+////                new FollowPath(driveToGateEnd),
+////                new Delay(0.4),
+////                new ParallelGroup(
+////                        new SequentialGroup(new Delay(1.25), Intake.INSTANCE.Stop),
+////                        new FollowPath(driveToLaunch1)),
+////                new Delay(0.25),
+////                new InstantCommand(() -> PedroComponent.follower().turn(Math.toRadians(Config.deltaToCenterAngleInDeg), false)),
+////                Catapult.INSTANCE.LaunchByPattern
+////                ,
+////
+////                // Grab balls and launch #2
+////                new ParallelGroup(
+////                        Intake.INSTANCE.Inwards,
+////                        new FollowPath(driveToSpike2Start)),
+////                new FollowPath(driveToSpike2End, true, 0.4),
+////                new ParallelGroup(
+////                        new SequentialGroup(new Delay(1.25), Intake.INSTANCE.Stop),
+////                        new FollowPath(driveToLaunch2)),
+////                new Delay(0.25),
+////                new InstantCommand(() -> PedroComponent.follower().turn(Math.toRadians(Config.deltaToCenterAngleInDeg), false)),
+////                Catapult.INSTANCE.LaunchByPattern
+////                ,
+////
+////                // Grab balls and launch #3
+////                new ParallelGroup(
+////                        Intake.INSTANCE.Inwards,
+////                        new FollowPath(driveToSpike3Start)),
+////                new FollowPath(driveToSpike3End, true, 0.4),
+////                new ParallelGroup(
+////                        new SequentialGroup(new Delay(1.25), Intake.INSTANCE.Stop),
+////                        new FollowPath(driveToLaunch3)),
+////                new Delay(0.25),
+////                new InstantCommand(() -> PedroComponent.follower().turn(Math.toRadians(Config.deltaToCenterAngleInDeg), false)),
+////                Catapult.INSTANCE.LaunchByPattern
+////                ,
+////
+////                // Go to Leave Pose
+////                new FollowPath(driveToLeave)
+//        );
+//    }
 
     @Override
     public void onUpdate() {
-        Intake.INSTANCE.CountBalls();
-        Config.autoEndPose = PedroComponent.follower().getPose();
+//        Intake.INSTANCE.CountBalls();
+//        Config.autoEndPose = drive.getPose();
 
         if (telemetryOnFlag) {
             telemetry.addData("run #", 1);
             telemetry.addData("alliance", Config.allianceColor.toString());
             telemetry.addData("pattern", Config.motifPattern.toString());
-            telemetry.addData("pos", "x: %.1f | y: %.1f | heading: %.0f", PedroComponent.follower().getPose().getX(), PedroComponent.follower().getPose().getY(), Math.toDegrees(PedroComponent.follower().getPose().getHeading()));
+//            telemetry.addData("pos", "x: %.1f | y: %.1f | heading: %.0f", PedroComponent.follower().getPose().getX(), PedroComponent.follower().getPose().getY(), Math.toDegrees(PedroComponent.follower().getPose().getHeading()));
             telemetry.addData("intake (power)", "%.0f", Intake.INSTANCE.getPower());
             telemetry.addData("balls", "%d", Intake.INSTANCE.ballCounter);
             telemetry.addData("catapults (pos)", "01: %.0f | 02: %.0f | 03: %.0f", Catapult.INSTANCE.getPosition01(), Catapult.INSTANCE.getPosition02(), Catapult.INSTANCE.getPosition03());
             telemetry.addData("catapults (pattern)", "%s%s%s", Config.catapult01Color.toString().charAt(0), Config.catapult02Color.toString().charAt(0), Config.catapult03Color.toString().charAt(0));
-            telemetry.addData("Timer", "%.1f", opModeTimer.getElapsedTimeSeconds());
+            telemetry.addData("Timer", "%.1f", opModeTimer.seconds());
             telemetry.update();
         }
     }
+
 }

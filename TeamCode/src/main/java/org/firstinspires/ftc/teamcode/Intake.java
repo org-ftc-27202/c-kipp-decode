@@ -1,17 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
 import dev.nextftc.hardware.impl.ServoEx;
 import dev.nextftc.hardware.positionable.SetPosition;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Intake implements Subsystem {
     public static final Intake INSTANCE = new Intake();
@@ -27,8 +26,8 @@ public class Intake implements Subsystem {
     private final ServoEx stopperServo = new ServoEx("stopper");
     public int ballCounter = 0;
     private DigitalChannel ballCounterSwitch;
-    private Timer ballSensorTimer = new Timer();
-    private Timer autoStopIntakeTimer = new Timer();
+    private ElapsedTime ballSensorTimer = new ElapsedTime();
+    private ElapsedTime autoStopIntakeTimer = new ElapsedTime();
     private boolean autoStopIntakeFlag = false;
 
     @Override
@@ -62,23 +61,23 @@ public class Intake implements Subsystem {
     public void CountBalls() {
         if (!ballCounterSwitch.getState()) {
             if (ballCounter == 0) {
-                ballSensorTimer.resetTimer();
+                ballSensorTimer.reset();
                 ballCounter = 1;
-            } else if (ballSensorTimer.getElapsedTime() > 200) {  // milliseconds in between sensor reading
-                ballSensorTimer.resetTimer();
+            } else if (ballSensorTimer.milliseconds() > 200) {  // milliseconds in between sensor reading
+                ballSensorTimer.reset();
                 ballCounter += 1;
                 if (ballCounter >= 3) {
-                    autoStopIntakeTimer.resetTimer();
+                    autoStopIntakeTimer.reset();
                     autoStopIntakeFlag = false;
                     intakeMode = IntakeMode.STOP;
                 }
             }
         }
         if (ballCounter >= 3) {
-            if (autoStopIntakeTimer.getElapsedTime() > 5) { // milliseconds to close stopper
+            if (autoStopIntakeTimer.milliseconds() > 5) { // milliseconds to close stopper
                 stopperServo.setPosition(stopperClosePosition);
             }
-            if (autoStopIntakeTimer.getElapsedTime() > 1500 && !autoStopIntakeFlag) { // milliseconds to auto stop intake
+            if (autoStopIntakeTimer.milliseconds() > 1500 && !autoStopIntakeFlag) { // milliseconds to auto stop intake
                     autoStopIntakeFlag = true;
                     wiperServo.setPosition(wiperLaunchPosition);
                     intakeMotor.getMotor().setPower(0);
@@ -119,7 +118,7 @@ public class Intake implements Subsystem {
                 intakeMode = IntakeMode.OUTWARDS;
                 wiperServo.setPosition(wiperIntakePosition);
                 stopperServo.setPosition(stopperOpenPosition);
-                intakeMotor.getMotor().setPower(-0.70);
+                intakeMotor.getMotor().setPower(-0.80);
             })
             .setUpdate(() -> {})
             .setIsDone(() -> true)
