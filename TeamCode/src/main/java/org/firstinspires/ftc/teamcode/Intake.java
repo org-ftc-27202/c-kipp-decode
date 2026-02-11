@@ -64,7 +64,7 @@ public class Intake implements Subsystem {
                 if (ballCounter == 0) {
                     ballSensorTimer.reset();
                     ballCounter = 1;
-                } else if (ballSensorTimer.milliseconds() > 200) {  // milliseconds in between sensor reading
+                } else if (ballSensorTimer.milliseconds() > 250) {  // milliseconds in between sensor reading
                     ballSensorTimer.reset();
                     ballCounter += 1;
                     if (ballCounter >= 3) {
