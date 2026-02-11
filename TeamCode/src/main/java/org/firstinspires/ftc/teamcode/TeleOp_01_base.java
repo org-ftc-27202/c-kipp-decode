@@ -81,8 +81,10 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
                                 Camera.INSTANCE.getCatapultArtifactColors,
                                 new SequentialGroup(
                                         Camera.INSTANCE.alignToGoal_byTurn,
-                                        Camera.INSTANCE.alignToGoal_byForward)),
-                        Catapult.INSTANCE.LaunchByPattern));
+                                        Camera.INSTANCE.alignToGoal_byForward))
+//                        ,
+//                        Catapult.INSTANCE.LaunchByPattern
+                ));
 
         // Reset
         Gamepads.gamepad1().dpadDown().not().and(Gamepads.gamepad1().x()).whenBecomesTrue(
@@ -102,6 +104,8 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
             telemetry.addData("balls", "%d", Intake.INSTANCE.ballCounter);
             telemetry.addData("catapults (pos)", "01: %.0f | 02: %.0f | 03: %.0f", Catapult.INSTANCE.getPosition01(), Catapult.INSTANCE.getPosition02(), Catapult.INSTANCE.getPosition03());
             telemetry.addData("catapults (pattern)", "%s%s%s", Config.catapult01Color.toString().charAt(0), Config.catapult02Color.toString().charAt(0), Config.catapult03Color.toString().charAt(0));
+            telemetry.addData("camera 01", "x: %d | y: %d", Config.camera01TagX, Config.camera01TagY);
+            telemetry.addData("camera 02", "x: %d | y: %d", Config.camera02TagX, Config.camera02TagY);
             telemetry.addData("goal", "cX: %d | cY: %d", Camera.INSTANCE.deltaToCenterX, Camera.INSTANCE.deltaToCenterY);
             telemetry.addData("Timer", "%.1f", opModeTimer.seconds());
             telemetry.update();
