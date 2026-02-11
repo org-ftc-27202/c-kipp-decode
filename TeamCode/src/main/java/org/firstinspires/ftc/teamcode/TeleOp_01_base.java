@@ -34,8 +34,8 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
         telemetry.addLine("Auto-Drive: x=Cancel Auto-Drive and Ball Count to 0");
         telemetry.addLine("dpadRight=Wiper to Launch");
         telemetry.update();
-        telemetryOnFlag = true;
-//        telemetryOnFlag = false;
+//        telemetryOnFlag = true;
+        telemetryOnFlag = false;
     }
     private final MotorEx frontLeftMotor = new MotorEx("leftFront").brakeMode();
     private final MotorEx frontRightMotor = new MotorEx("rightFront").reversed().brakeMode();
@@ -81,9 +81,8 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
                                 Camera.INSTANCE.getCatapultArtifactColors,
                                 new SequentialGroup(
                                         Camera.INSTANCE.alignToGoal_byTurn,
-                                        Camera.INSTANCE.alignToGoal_byForward))
-//                        ,
-//                        Catapult.INSTANCE.LaunchByPattern
+                                        Camera.INSTANCE.alignToGoal_byForward)),
+                        Catapult.INSTANCE.LaunchByPattern
                 ));
 
         // Reset

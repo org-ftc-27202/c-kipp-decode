@@ -181,7 +181,7 @@ public class Camera implements Subsystem {
                 Config.catapult02Color = Config.Colors.PURPLE;
                 Config.catapult03Color = Config.Colors.PURPLE;
 
-                // Right-Side Camera to get Catapult01 and Catapult02 color
+                // Right-Side Camera to get Catapult01 color
                 blockLength = huskyLensRightBlocks.length;
                 for (blockIndex = 0; blockIndex < blockLength; blockIndex++) {
                     Config.camera01TagX = huskyLensRightBlocks[0].x;
@@ -194,29 +194,26 @@ public class Camera implements Subsystem {
                             && huskyLensRightBlocks[blockIndex].y <= 140) {
                         Config.catapult01Color = Config.Colors.GREEN;
                     }
-                    if (huskyLensRightBlocks[blockIndex].id == 1
-                            && huskyLensRightBlocks[blockIndex].x >= 40
-                            && huskyLensRightBlocks[blockIndex].x < 155
-                            && huskyLensRightBlocks[blockIndex].y >= 100
-                            && huskyLensRightBlocks[blockIndex].y <= 140) {
-                        Config.catapult02Color = Config.Colors.GREEN;
-                    }
                 }
 
-                // Left-Side Camera to get Catapult03 color
+                // Left-Side Camera to get Catapult02 and Catapult03 color
                 blockLength = huskyLensLeftBlocks.length;
                 for (blockIndex = 0; blockIndex < blockLength; blockIndex++) {
                     Config.camera02TagX = huskyLensLeftBlocks[0].x;
                     Config.camera02TagY = huskyLensLeftBlocks[0].y;
 
                     if (huskyLensLeftBlocks[blockIndex].id == 1
-                            && huskyLensLeftBlocks[blockIndex].x >= 80
-                            && huskyLensLeftBlocks[blockIndex].x <= 180
-                            && huskyLensLeftBlocks[blockIndex].y >= 100
+                            && huskyLensLeftBlocks[blockIndex].x >= 124
+                            && huskyLensLeftBlocks[blockIndex].x <= 160
+                            && huskyLensLeftBlocks[blockIndex].y >= 95
                             && huskyLensLeftBlocks[blockIndex].y <= 180) {
                         Config.catapult03Color = Config.Colors.GREEN;
                     }
                 }
+                if (Config.catapult01Color == Config.Colors.PURPLE && Config.catapult03Color == Config.Colors.PURPLE) {
+                    Config.catapult02Color = Config.Colors.GREEN;
+                }
+
                 flagGetCatapultArtifactColors = true;
 
             })
