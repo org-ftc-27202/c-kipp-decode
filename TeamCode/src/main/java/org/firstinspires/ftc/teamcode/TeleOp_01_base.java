@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import dev.nextftc.core.commands.conditionals.WGIfElseCommand;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
@@ -24,17 +25,10 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
     private boolean telemetryOnFlag;
     @Override
     public void onInit() {
+        Config.activeOpMode = Config.opModeOptions.TELEOP;
         Config.isTeleOpStartButtonPressed = false;
         Camera.INSTANCE.mapCameraHardware(hardwareMap);
         Intake.INSTANCE.mapIntakeStopperHardware(hardwareMap);
-
-        telemetry.addLine("--- Buttons ---");
-        telemetry.addLine("Intake: leftBumper=In/Off leftTrigger=Out/Off");
-        telemetry.addLine("Launch: rightBumper=Parallel rightTrigger=Pattern");
-        telemetry.addLine("Auto-Drive: x=Cancel Auto-Drive and Ball Count to 0");
-        telemetry.addLine("dpadRight=Wiper to Launch");
-        telemetry.update();
-//        telemetryOnFlag = true;
         telemetryOnFlag = false;
     }
     private final MotorEx frontLeftMotor = new MotorEx("leftFront").brakeMode();
@@ -54,6 +48,11 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
                 Gamepads.gamepad1().leftStickX(),
                 Gamepads.gamepad1().rightStickX().map(x -> Config.isDriverControlled ? x * 0.75 : Camera.INSTANCE.turnPIDPower));  // Scalar to reduce turn power
         driverControlled.schedule();
+
+        // Telemetry
+        Gamepads.gamepad1().y().whenBecomesTrue(
+                new WGIfElseCommand(() -> telemetryOnFlag, new InstantCommand(() -> telemetryOnFlag = false),
+                    new InstantCommand(() -> telemetryOnFlag = true)));
 
         // Intake
         Gamepads.gamepad1().leftBumper().whenBecomesTrue(Intake.INSTANCE.Inwards);
@@ -103,10 +102,16 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
             telemetry.addData("balls", "%d", Intake.INSTANCE.ballCounter);
             telemetry.addData("catapults (pos)", "01: %.0f | 02: %.0f | 03: %.0f", Catapult.INSTANCE.getPosition01(), Catapult.INSTANCE.getPosition02(), Catapult.INSTANCE.getPosition03());
             telemetry.addData("catapults (pattern)", "%s%s%s", Config.catapult01Color.toString().charAt(0), Config.catapult02Color.toString().charAt(0), Config.catapult03Color.toString().charAt(0));
-            telemetry.addData("camera 01", "x: %d | y: %d", Config.camera01TagX, Config.camera01TagY);
-            telemetry.addData("camera 02", "x: %d | y: %d", Config.camera02TagX, Config.camera02TagY);
+            telemetry.addData("camera left", "x: %d | y: %d", Config.cameraLeftTagX, Config.cameraLeftTagY);
+            telemetry.addData("camera right", "x: %d | y: %d", Config.cameraRightTagX, Config.cameraRightTagY);
             telemetry.addData("goal", "cX: %d | cY: %d", Camera.INSTANCE.deltaToCenterX, Camera.INSTANCE.deltaToCenterY);
             telemetry.addData("Timer", "%.1f", opModeTimer.seconds());
+
+            telemetry.addLine("--- Buttons ---");
+            telemetry.addLine("Intake: leftBumper=In/Off leftTrigger=Out/Off");
+            telemetry.addLine("Launch: rightBumper=Parallel rightTrigger=Pattern");
+            telemetry.addLine("Auto-Drive: x=Cancel Auto-Drive and Ball Count to 0");
+            telemetry.addLine("dpadRight=Wiper to Launch");
             telemetry.update();
         }
     }

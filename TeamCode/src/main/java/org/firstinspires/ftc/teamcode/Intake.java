@@ -78,7 +78,7 @@ public class Intake implements Subsystem {
                 if (autoStopIntakeTimer.milliseconds() > 5) { // milliseconds to close stopper
                     stopperServo.setPosition(stopperClosePosition);
                 }
-                if (autoStopIntakeTimer.milliseconds() > 1500 && !autoStopIntakeFlag) { // milliseconds to auto stop intake
+                if (autoStopIntakeTimer.milliseconds() > 2000 && !autoStopIntakeFlag) { // milliseconds to auto stop intake
                     autoStopIntakeFlag = true;
                     wiperServo.setPosition(wiperLaunchPosition);
                     intakeMotor.getMotor().setPower(0);
@@ -94,7 +94,7 @@ public class Intake implements Subsystem {
                 intakeMode = IntakeMode.INWARDS;
                 wiperServo.setPosition(wiperIntakePosition);
                 stopperServo.setPosition(stopperOpenPosition);
-                intakeMotor.getMotor().setPower(0.80);
+                intakeMotor.getMotor().setPower(0.90);
             })
             .setUpdate(() -> {})
             .setIsDone(() -> true)

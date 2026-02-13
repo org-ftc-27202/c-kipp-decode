@@ -17,5 +17,8 @@ public class Config {
     public static Pose2d autoEndPose = new Pose2d(112, 138, Math.toRadians(90));
     public static boolean isDriverControlled = true;
     public static boolean isTeleOpStartButtonPressed = false;
-    public static int camera01TagX, camera01TagY, camera02TagX, camera02TagY;
+    public static boolean isGoalTagDetected = false;
+    public static int cameraLeftTagX, cameraLeftTagY, cameraRightTagX, cameraRightTagY;
+    public enum opModeOptions {AUTO, TELEOP}
+    public static opModeOptions activeOpMode = opModeOptions.TELEOP;
 }

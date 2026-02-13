@@ -81,6 +81,7 @@ public class Camera implements Subsystem {
             .requires(this);
     public Command alignToGoal_byTurn = new LambdaCommand("alignToGoal_byTurn")
             .setStart(() -> {
+                Config.isGoalTagDetected = false;
                 flagAlignToGoalComplete = false;
                 deltaToCenterX = 0;
                 turnPIDPower = 0.0;
@@ -92,20 +93,20 @@ public class Camera implements Subsystem {
                 blockLength = blocksFront.length;
                 deltaToCenterX = 0;
                 if (blockLength != 0) {
-                    // if RED alliance, then get the leftmost, otherwise, go rightmost
                     if (Config.allianceColor == Config.AllianceColors.RED && blocksFront[0].id == 4
                             || Config.allianceColor == Config.AllianceColors.BLUE && blocksFront[0].id == 5) {
                         tagX = blocksFront[0].x;
+                        deltaToCenterX = tagX - 160; // based on frame width of 320
+                        Config.isGoalTagDetected = true;
                     }
-                    deltaToCenterX = tagX - 160; // based on frame width of 320
                 }
-                if (deltaToCenterX > 8) {
+                if (deltaToCenterX > 7) {
                     Config.isDriverControlled = false;
-                    turnPIDPower = 0.12;
+                    turnPIDPower = 0.15;
                 }
-                else if (deltaToCenterX < -8) {
+                else if (deltaToCenterX < -7) {
                     Config.isDriverControlled = false;
-                    turnPIDPower = -0.12;
+                    turnPIDPower = -0.15;
                 }
                 else {
                     flagAlignToGoalComplete = true;
@@ -130,25 +131,26 @@ public class Camera implements Subsystem {
                 deltaToCenterX = 0;
                 deltaToCenterY = 0;
                 if (blockLength != 0) {
-                    // if RED alliance, then get the leftmost, otherwise, go rightmost
                     if (Config.allianceColor == Config.AllianceColors.RED && blocksFront[0].id == 4
                             || Config.allianceColor == Config.AllianceColors.BLUE && blocksFront[0].id == 5) {
                         tagY = blocksFront[0].y;
+                        deltaToCenterY = tagY - 50; // based on ideal height of 50
                     }
-                    deltaToCenterY = tagY - 58; // based on ideal height of 36
                 }
-                if (deltaToCenterY > 8) {
-                    Config.isDriverControlled = false;
-                    forwardPIDPower = 0.50;
-                }
-                else if (deltaToCenterY < -8) {
-                    Config.isDriverControlled = false;
-                    forwardPIDPower = -0.50;
-                }
-                else {
+//                if (deltaToCenterY > 2) {
+//                    // move forward
+////                    Config.isDriverControlled = false;
+////                    forwardPIDPower = 0.40;
+//                }
+//                else if (deltaToCenterY < -3) {
+//                    // move backward
+////                    Config.isDriverControlled = false;
+////                    forwardPIDPower = -0.40;
+//                }
+//                else {
                     flagAlignToGoalComplete = true;
                     Config.isDriverControlled = true;
-                }
+//                }
             })
             .setIsDone(() -> flagAlignToGoalComplete)
             .setStop(interrupted -> {})
@@ -184,29 +186,27 @@ public class Camera implements Subsystem {
                 // Right-Side Camera to get Catapult01 color
                 blockLength = huskyLensRightBlocks.length;
                 for (blockIndex = 0; blockIndex < blockLength; blockIndex++) {
-                    Config.camera01TagX = huskyLensRightBlocks[0].x;
-                    Config.camera01TagY = huskyLensRightBlocks[0].y;
+                    Config.cameraRightTagX = huskyLensRightBlocks[0].x;
+                    Config.cameraRightTagY = huskyLensRightBlocks[0].y;
 
                     if (huskyLensRightBlocks[blockIndex].id == 1
-                            && huskyLensRightBlocks[blockIndex].x >= 155
-                            && huskyLensRightBlocks[blockIndex].x <= 200
-                            && huskyLensRightBlocks[blockIndex].y >= 100
-                            && huskyLensRightBlocks[blockIndex].y <= 140) {
+                            && huskyLensRightBlocks[blockIndex].x >= 165
+                            && huskyLensRightBlocks[blockIndex].y >= 80
+                            && huskyLensRightBlocks[blockIndex].y <= 150) {
                         Config.catapult01Color = Config.Colors.GREEN;
                     }
                 }
 
-                // Left-Side Camera to get Catapult02 and Catapult03 color
+                // Left-Side Camera to get Catapult03 color
                 blockLength = huskyLensLeftBlocks.length;
                 for (blockIndex = 0; blockIndex < blockLength; blockIndex++) {
-                    Config.camera02TagX = huskyLensLeftBlocks[0].x;
-                    Config.camera02TagY = huskyLensLeftBlocks[0].y;
+                    Config.cameraLeftTagX = huskyLensLeftBlocks[0].x;
+                    Config.cameraLeftTagY = huskyLensLeftBlocks[0].y;
 
                     if (huskyLensLeftBlocks[blockIndex].id == 1
-                            && huskyLensLeftBlocks[blockIndex].x >= 124
-                            && huskyLensLeftBlocks[blockIndex].x <= 160
-                            && huskyLensLeftBlocks[blockIndex].y >= 95
-                            && huskyLensLeftBlocks[blockIndex].y <= 180) {
+                            && huskyLensLeftBlocks[blockIndex].x <= 140
+                            && huskyLensLeftBlocks[blockIndex].y >= 80
+                            && huskyLensLeftBlocks[blockIndex].y <= 150) {
                         Config.catapult03Color = Config.Colors.GREEN;
                     }
                 }

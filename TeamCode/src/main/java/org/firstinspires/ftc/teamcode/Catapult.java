@@ -16,7 +16,7 @@ public class Catapult implements Subsystem {
     private double CATAPULT_LAUNCH_POWER = 1.0;
     private int HALF_ROTATION;
     final double LAUNCHING_IN_PARALLEL_DELAY_IN_SECONDS = 0.100;  // delay in between catapult launches
-    final double LAUNCHING_BY_PATTERN_DELAY_IN_SECONDS = 0.500;  // delay in between catapult launches
+    final double LAUNCHING_BY_PATTERN_DELAY_IN_SECONDS = 1.000;  // delay in between catapult launches
 
     public static final Catapult INSTANCE = new Catapult();
     private Catapult() { }
@@ -98,11 +98,12 @@ public class Catapult implements Subsystem {
             .setInterruptible(false)
             .requires(this);
 
-    public Command LaunchInParallel = new ParallelGroup(
-            Launch01,
-            Launch03,
-            new SequentialGroup(new Delay(LAUNCHING_IN_PARALLEL_DELAY_IN_SECONDS), Launch02))
-            .requires(this);
+    public Command LaunchInParallel = new WGIfElseCommand(() -> Config.isGoalTagDetected || Config.activeOpMode == Config.opModeOptions.AUTO,
+            new ParallelGroup(
+                Launch01,
+                Launch03,
+                new SequentialGroup(new Delay(LAUNCHING_IN_PARALLEL_DELAY_IN_SECONDS), Launch02))
+            .requires(this));
     public Command Launch123 = new ParallelGroup(
             Launch01,
             new SequentialGroup(new Delay(LAUNCHING_BY_PATTERN_DELAY_IN_SECONDS), Launch02),
@@ -148,7 +149,7 @@ public class Catapult implements Subsystem {
             Launch03,
             new SequentialGroup(new Delay(LAUNCHING_BY_PATTERN_DELAY_IN_SECONDS), Launch01))
             .requires(this);
-    public Command LaunchByPattern =
+    public Command LaunchByPattern = new WGIfElseCommand(() -> Config.isGoalTagDetected || Config.activeOpMode == Config.opModeOptions.AUTO,
             new WGIfElseCommand(() -> Config.motifPattern == Config.MotifPatterns.GPP,
                     new WGIfElseCommand(() -> Config.catapult01Color == Config.Colors.GREEN,
                             Launch1Then23,
@@ -171,5 +172,5 @@ public class Catapult implements Subsystem {
                                                     Launch12Then3
                                             ))
                             )))
-                    .requires(this);
+                    .requires(this));
 }
