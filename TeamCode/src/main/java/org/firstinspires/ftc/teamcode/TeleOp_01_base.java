@@ -12,6 +12,8 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.DriverControlledCommand;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
+
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public abstract class TeleOp_01_base extends NextFTCOpMode {
@@ -23,6 +25,8 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
     }
     private final ElapsedTime opModeTimer = new ElapsedTime();
     private boolean telemetryOnFlag;
+    private AIP1640Driver display;
+    private int prevBallCounter;
     @Override
     public void onInit() {
         Config.activeOpMode = Config.opModeOptions.TELEOP;
@@ -30,6 +34,12 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
         Camera.INSTANCE.mapCameraHardware(hardwareMap);
         Intake.INSTANCE.mapIntakeStopperHardware(hardwareMap);
         telemetryOnFlag = false;
+
+        DigitalChannel din = hardwareMap.get(DigitalChannel.class, "dinPin");
+        DigitalChannel sclk = hardwareMap.get(DigitalChannel.class, "clkPin");
+        display = new AIP1640Driver(din, sclk);
+        prevBallCounter = 0;
+        display.displayColumnGroups(prevBallCounter);
     }
     private final MotorEx frontLeftMotor = new MotorEx("leftFront").brakeMode();
     private final MotorEx frontRightMotor = new MotorEx("rightFront").reversed().brakeMode();
@@ -93,6 +103,10 @@ public abstract class TeleOp_01_base extends NextFTCOpMode {
     @Override
     public void onUpdate() {
         Intake.INSTANCE.CountBalls();
+        if (prevBallCounter != Intake.INSTANCE.ballCounter) {
+            prevBallCounter = Intake.INSTANCE.ballCounter;
+            display.displayColumnGroups(prevBallCounter);
+        }
 
         if (telemetryOnFlag) {
             telemetry.addData("run #", 1);
